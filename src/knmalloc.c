@@ -64,7 +64,8 @@ void addAvailableChunk(void* ptr, size_t size)
         return;
     }
 
-    for (int i = 0; i < available.amount; i++)
+    // What a mess
+    for (int i = 0; i < available.amount && i < CHUNK_CAPACITY - 1; i++)
     {
         Chunk* current = &available.chunks[i];
 
@@ -73,8 +74,8 @@ void addAvailableChunk(void* ptr, size_t size)
             current->start = ptr;
             current->size += size;
             return;
-        }        
-        if ((uintptr_t)ptr == (uintptr_t)current->start + current->size)
+        }
+        if ((uintptr_t)current->start + current->size == (uintptr_t)ptr)
         {
             current->size += size;
             Chunk* next = &available.chunks[i + 1];
@@ -89,9 +90,16 @@ void addAvailableChunk(void* ptr, size_t size)
         }
         if ((uintptr_t)ptr < (uintptr_t)current->start)
         {
-            memmove(current + 1, current, (available.amount - i) * sizeof(Chunk));
+            memmove(current + 1, current, sizeof(available.amount - i) * sizeof(Chunk));
             current->start = ptr;
             current->size = size;
+            available.amount++;
+            return;
+        }
+        if (i == available.amount - 1)
+        {
+            available.chunks[available.amount].start = ptr;
+            available.chunks[available.amount].size = size;
             available.amount++;
             return;
         }
