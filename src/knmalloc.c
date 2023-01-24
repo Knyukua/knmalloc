@@ -1,8 +1,6 @@
 #include "knmalloc.h"
 
 #include <stdio.h>
-#include <assert.h>
-#include <stdbool.h>
 #include <string.h>
 
 #define HEAP_CAPACITY 640000
